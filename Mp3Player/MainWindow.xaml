@@ -1,0 +1,362 @@
+﻿<Window x:Class="Mp3Player.MainWindow"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        Title="Mp3 Box" Height="100" Width="100" ResizeMode="NoResize"
+        AllowsTransparency="True" WindowStyle="None" KeyDown="Window_KeyDown" Icon="Icons\ICON1.ico" KeyUp="Window_KeyUp">
+
+    <Window.Resources>
+
+        <!-- Style that Set IsTabStop Propert to false for every Button control -->
+        <Style TargetType="Button">
+            <Setter Property="IsTabStop" Value="False" />
+        </Style>
+
+        <!-- Custom Slider Style : Aniket -->
+        <Style x:Key="SliderStyle" TargetType="{x:Type Slider}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Slider}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TickBar x:Name="TopTick" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" Placement="Top" Height="5" Grid.Row="0"/>
+                                <TickBar x:Name="BottomTick" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" Placement="Bottom" Height="5" Grid.Row="0"/>
+
+                                <Border x:Name="TrackBackground" BorderThickness="1" CornerRadius="1"
+		                                Margin="0" VerticalAlignment="Center" Height="5" Grid.Row="1" >
+
+                                    <Canvas Margin="-6,-1">
+                                        <Rectangle Visibility="Hidden" x:Name="PART_SelectionRange" Margin="0"
+			                                        Fill="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"
+			                                        Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"
+			                                        StrokeThickness="1.0"/>
+                                    </Canvas>
+                                </Border>
+
+                                <Track x:Name="PART_Track" Grid.Row="1" >
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static Slider.DecreaseLarge}" IsTabStop="False">
+                                            <RepeatButton.Template>
+                                                <ControlTemplate>
+                                                    <Rectangle Width="{TemplateBinding Width}" Fill="Green" />
+                                                </ControlTemplate>
+                                            </RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.DecreaseRepeatButton>
+
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static Slider.IncreaseLarge}" IsTabStop="False">
+                                            <RepeatButton.Template>
+                                                <ControlTemplate>
+                                                    <Rectangle Width="{TemplateBinding Width}" Fill="Transparent" />
+                                                </ControlTemplate>
+                                            </RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.IncreaseRepeatButton>
+
+                                    <Track.Thumb>
+                                        <Thumb x:Name="Thumb" >
+                                            <Thumb.Template>
+                                                <ControlTemplate>
+                                                    <Rectangle Name="rect" Width="10" Fill="Green"/>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="true">
+                                                            <Setter Property="Fill" Value="LightBlue" TargetName="rect" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
+                                    </Track.Thumb>
+                                </Track>
+
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Cutsom Previous Button Tempalte-->
+        <ControlTemplate x:Key="PrevBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="#B2A9AEA9" RadiusX="3" RadiusY="3"/>
+                <Path Name="Path" Width="9" Height="12" Stretch="Fill" Fill="#E5302F32" 
+                      Data="F1 M 16.1257,0C 15.8085,0 15.3884,-0.0389709 15.0501,0.194794L 6.08627,7.76401L 6.08627,1.73898C 6.08627,0.778503 5.30774,0 4.34738,0L 1.73886,0C 0.778625,0 0,0.778503 0,1.73898L 0,18.2587C 0,19.2191 0.778625,19.9976 1.73886,19.9976L 4.34738,19.9976C 5.30774,19.9976 6.08627,19.2191 6.08627,18.2587L 6.08627,12.1833L 15.0501,19.7526C 15.3884,19.9863 15.8085,19.9473 16.1257,19.9473C 17.3948,19.9473 17.3892,18.8106 17.3892,18.5225L 17.3892,1.42487C 17.389,1.1813 17.3947,0 16.1257,0 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="#FFFDFDFD" TargetName="rect"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Next Button Tempalte -->
+        <ControlTemplate x:Key="NextBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="#B2A9AEA9" RadiusX="3" RadiusY="3"/>
+                <Path x:Name="Path" Width="9" Height="12" Stretch="Fill" Fill="#E5302F32" 
+                      Data="F1 M 15.6502,0L 13.0418,0C 12.0814,0 11.303,0.778503 11.303,1.73898L 11.303,7.81436L 2.33911,0.245026C 2.00073,0.011261 1.58063,0.0502319 1.26343,0.0502319C -0.0055542,0.0502319 0,1.18695 0,1.47513L 0,18.5727C 0,18.8163 -0.0055542,19.9976 1.26343,19.9976C 1.58063,19.9976 2.00073,20.0365 2.33911,19.8028L 11.3031,12.2334L 11.3031,18.2586C 11.3031,19.219 12.0815,19.9975 13.0419,19.9975L 15.6503,19.9975C 16.6107,19.9975 17.3892,19.219 17.3892,18.2586L 17.3892,1.73898C 17.3892,0.778503 16.6107,0 15.6502,0 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="#FFFDFDFD" TargetName="rect"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Play/Pause Button Template -->
+        <ControlTemplate x:Key="PlayBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="#B2A9AEA9" RadiusX="3" RadiusY="3"/>
+                <Path x:Name="PlayPausePath" Width="9" Height="12" Stretch="Fill" Fill="#FF302F32" 
+                      Data="F1 M 16.0292,8.58054L 2.7204,0.195221C 2.3269,-0.039032 1.83838,0 1.46942,0C -0.00653076,0 0,1.1395 0,1.42819L 0,18.5669C 0,18.8109 -0.00640869,19.9951 1.46942,19.9951C 1.83838,19.9951 2.32703,20.034 2.7204,19.7998L 16.0291,11.4146C 17.1215,10.7646 16.9327,9.99753 16.9327,9.99753C 16.9327,9.99753 17.1216,9.23044 16.0292,8.58054 Z " />
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="PlayPausePath" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="#FFFDFDFD" TargetName="rect"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Close Button Template -->
+        <ControlTemplate x:Key="CloseBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="#B2A9AEA9" RadiusX="3" RadiusY="3"/>
+                <Path Name="Path" Width="12" Height="12" Stretch="Fill" Fill="#FF302F32" 
+                      Data="F1 M 13.387,9.99977L 19.2986,4.08815C 20.2341,3.15266 20.2341,1.63625 19.2986,0.701248C 18.3641,-0.233719 16.8467,-0.233719 15.9122,0.701248L 10.0001,6.61336L 4.08801,0.701248C 3.1535,-0.233719 1.63608,-0.233719 0.701599,0.701248C -0.233887,1.63673 -0.233887,3.15315 0.701599,4.08815L 6.61322,9.99977L 0.701599,15.9114C -0.233887,16.8468 -0.233887,18.3633 0.701599,19.2983C 1.16907,19.7658 1.7822,19.9996 2.39478,19.9996C 3.00742,19.9996 3.62097,19.7658 4.08801,19.2983L 10.0001,13.3867L 15.9122,19.2988C 16.3797,19.7663 16.9928,20 17.6054,20C 18.2181,20 18.8316,19.7663 19.2986,19.2988C 20.2341,18.3633 20.2341,16.8468 19.2986,15.9119L 13.387,9.99977 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="#FFF06161" TargetName="Path" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="#FFFDFDFD" TargetName="rect"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Minimize Button Template -->
+        <ControlTemplate x:Key="MinimizeBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="#B2A9AEA9" RadiusX="3" RadiusY="3"/>
+                <Path Name="Path" Width="12" Height="4.26495" Margin="0,8,0,0" Stretch="Fill" Fill="#FF302F32" 
+                      Data="F1 M 20.0012,1.51059C 20.0012,0.676453 19.3252,3.05176e-005 18.4906,3.05176e-005L 1.51059,3.05176e-005C 0.676453,3.05176e-005 0,0.675995 0,1.51059L 0,2.75443C 0,3.58856 0.676453,4.26498 1.51059,4.26498L 18.491,4.26498C 19.3252,4.26498 20.0016,3.58856 20.0016,2.75443L 20.0016,1.51059L 20.0012,1.51059 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="#FF3E4CCB" TargetName="Path" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="#FFFDFDFD" TargetName="rect"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        
+        <!-- Custom Repeat Once RadioButton Tempalte -->
+        <ControlTemplate x:Key="RepeatOnceBtn" TargetType="RadioButton" >
+            <Grid ToolTip="Repeat Once">
+                <Rectangle Fill="Transparent" />
+                <Path Name="Path" Width="20" Height="18" Stretch="Fill" Fill="#E5302F32" 
+                      Data="F1 M 7.14276,10C 7.14276,11.5779 8.42194,12.8571 9.99991,12.8571C 11.5779,12.8571 12.857,11.5779 12.857,10C 12.857,8.42203 11.5779,7.14282 9.99991,7.14282C 8.42203,7.14282 7.14276,8.42203 7.14276,10 Z M 18.1919,14.2857L 22.8571,9.28571L 19.9717,9.28571C 19.605,4.09644 15.2826,0 9.99991,0C 4.47684,0 0,4.47693 0,10C 0,15.5231 4.47684,20 10,20C 12.3974,20 14.5967,19.1546 16.319,17.748L 13.7702,15.1991C 12.7106,15.9688 11.4105,16.4285 10,16.4285C 6.44949,16.4285 3.57141,13.5504 3.57141,9.99991C 3.57141,6.4494 6.4494,3.57123 10,3.57123C 13.3087,3.57123 16.031,6.07162 16.3867,9.28555L 13.5714,9.28555L 18.1919,14.2857 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Fill" Value="Green" TargetName="Path"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Repeat All RadioButton Tempalte -->
+        <ControlTemplate x:Key="RepeatAllBtn" TargetType="RadioButton" >
+            <Grid ToolTip="Repeat All">
+                <Rectangle Fill="Transparent" />
+                <Path Name="Path" Width="20" Height="18" Stretch="Fill" Fill="#E5302F32" 
+                      Data="F1 M 18.1919,14.2856L 22.8571,9.28568L 19.9718,9.28568C 19.6051,4.09644 15.2827,0 9.99997,0C 4.47684,0 0,4.4769 0,10C 0,15.5231 4.47684,20 9.99997,20C 12.3975,20 14.5967,19.1546 16.319,17.748L 13.7702,15.1991C 12.7107,15.9688 11.4104,16.4285 9.99997,16.4285C 6.44946,16.4285 3.57141,13.5504 3.57141,9.99997C 3.57141,6.44946 6.44946,3.57132 9.99997,3.57132C 13.3087,3.57132 16.031,6.07169 16.3866,9.28561L 13.5714,9.28561L 18.1919,14.2856 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Fill" Value="Green" TargetName="Path"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom shuffle RadioButton Tempalte -->
+        <ControlTemplate x:Key="ShuffleBtn" TargetType="RadioButton" >
+            <Grid ToolTip="Shuffle">
+                <Rectangle Fill="Transparent" />
+                <Path Name="Path" Width="20" Height="18" Stretch="Fill" Fill="#E5302F32" 
+                      Data="F1 M 20.8334,13.3333L 17.3334,13.3332C 16.1927,13.3332 15.5521,13.1145 14.9831,12.414C 14.9206,12.6081 14.8542,12.7942 14.78,12.957C 14.2031,14.2148 13.6185,15.1809 12.966,15.9519C 13.3865,16.2656 13.8412,16.5495 14.3801,16.763C 15.2942,17.1276 16.4556,17.5001 17.4999,17.5001L 20.8332,17.5001L 20.8332,20L 26.6664,15.3333L 20.8332,10.8333L 20.8332,13.3333M 9.22269,8.16003C 9.2265,8.13788 9.2305,8.11581 9.23441,8.09494C 9.36462,7.3605 9.48956,6.6665 9.72134,6.13266C 10.0755,5.32022 10.5311,4.64575 11.0469,4.04413C 10.612,3.71085 10.1459,3.4465 9.61966,3.23679C 8.7056,2.87231 7.71094,2.49994 6.66656,2.49994L 6.10352e-005,2.49994L 0,6.6665L 6.66669,6.6665C 7.66144,6.6665 8.51306,7.21088 9.22269,8.16003 Z M 14.6667,7.99997C 15.3255,6.92957 16.1472,6.66669 17.5002,6.66669L 20.8334,6.66669L 20.8334,9.16666L 26.6666,4.6666L 20.8334,0L 20.8334,2.50003L 17.5002,2.50003C 16.4558,2.50003 15.2943,2.87241 14.3803,3.23688C 12.7137,3.89978 11.6537,5.04037 10.9441,6.6666C 10.5626,7.54163 10.4832,9.55215 9.93362,10.6667C 9.11075,12.3333 8.01953,13.3332 6.66669,13.3332L 0,13.3332L 6.10352e-005,17.5L 6.66669,17.5C 7.29431,17.5 8.70569,17.1275 9.61975,16.7629C 11.2864,16.1002 12.3893,14.9726 13.5678,12.401C 14.0691,11.3059 14.3333,8.54163 14.6667,7.99997 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Fill" Value="Green" TargetName="Path"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Menu Button Template -->
+        <ControlTemplate x:Key="MenuBtn" TargetType="Button">
+            <Grid>
+                <Rectangle Name="rect" Fill="Transparent" RadiusX="3" RadiusY="3"/>
+                <Path Name="Path" Width="4.265" Height="15" Stretch="Fill" Fill="Transparent" 
+                      Data="F1 M 1.51059,0.000442505C 0.676453,0.000442505 0,0.676437 0,1.51106L 0,18.491C 0,19.3251 0.67598,20.0016 1.51059,20.0016L 2.75441,20.0016C 3.58855,20.0016 4.265,19.3251 4.265,18.491L 4.265,1.51057C 4.265,0.676437 3.58855,-1.52588e-005 2.75441,-1.52588e-005L 1.51059,-1.52588e-005L 1.51059,0.000442505 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="#B2A9AEA9" TargetName="rect" />
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="True">
+                    <Setter Property="Fill" Value="White" TargetName="Path" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Add button Template -->
+        <ControlTemplate x:Key="AddBtn" TargetType="Button" >
+            <Grid ToolTip="Add To Playlist">
+                <Rectangle Fill="Transparent" />
+                <Path Name="Path" Width="19" Height="19" Stretch="Fill" Fill="#E5302F32" Data="F1 M 19.375,7.5L 12.5,7.5L 12.5,0.625C 12.5,0.279877 12.2202,0 11.875,0L 8.12503,0C 7.77985,0 7.50003,0.279877 7.50003,0.625L 7.50003,7.5L 0.625,7.5C 0.279785,7.5 0,7.77988 0,8.125L 0,11.875C 0,12.2202 0.279785,12.5 0.625,12.5L 7.50003,12.5L 7.50003,19.375C 7.50003,19.7202 7.77985,20 8.12503,20L 11.875,20C 12.2202,20 12.5,19.7202 12.5,19.375L 12.5,12.5L 19.375,12.5C 19.7202,12.5 20,12.2202 20,11.875L 20,8.125C 20,7.77988 19.7202,7.5 19.375,7.5 Z "/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="Path" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Custom Open Files button Template -->
+        <ControlTemplate x:Key="OpenBtn" TargetType="Button" >
+            <Grid ToolTip="Play Files">
+                <Rectangle Fill="Transparent" />
+                <Canvas Width="19" Height="19">
+                    <Path Name="pt1" Width="18" Height="4" Canvas.Left="0" Canvas.Top="14" Stretch="Fill" Fill="#E5302F32" 
+                          Data="F1 M 22.5887,15.1583L 1.24966,15.1583C 0.559845,15.1583 0,15.7181 0,16.408L 0,18.3849C 0,19.0747 0.559845,19.6345 1.24966,19.6345L 22.5912,19.6345C 23.281,19.6345 23.8408,19.0747 23.8408,18.3849L 23.8408,16.408C 23.8384,15.7181 23.281,15.1583 22.5887,15.1583 Z "/>
+                    <Path Name="pt2" Width="18" Height="11" Canvas.Left="0.166275" Canvas.Top="-0.365486" Stretch="Fill" Fill="#E5302F32" 
+                          Data="F1 M 1.41959,12.6965L 22.5487,12.6965C 23.6609,12.6965 24.2207,11.3494 23.4335,10.5621L 12.8664,1.52588e-005C 12.379,-0.48732 11.5867,-0.48732 11.0994,1.52588e-005L 0.53479,10.5621C -0.252441,11.3493 0.304932,12.6965 1.41959,12.6965 Z "/>
+                </Canvas>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Fill" Value="Black" TargetName="pt1" />
+                    <Setter Property="Fill" Value="Black" TargetName="pt2" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+
+    </Window.Resources>
+
+    <Grid MouseRightButtonDown="MasterGrid_MouseRightButtonDown" MouseWheel="MasterGrid_MouseWheel">
+
+        <!-- Grid that hold Image Elements for Album Art and Backround image -->
+        <Grid>
+            <Image Source="Icons\Image.jpg" />
+            <Image x:Name="albumArt" />
+
+            <Grid.RenderTransform>
+                <TranslateTransform X="0" x:Name="AlbumArtTT" />
+            </Grid.RenderTransform>
+        </Grid>
+        
+
+        <!-- Main Grid userd to render primary controls, can be slide to left by pressing Slider Button -->
+        <Grid x:Name="MainGrid" AllowDrop="True" Drop="Window_Drop">
+
+            <!-- Rectangle That Manage Drop and Double click events  -->
+            <Rectangle Fill="Transparent"  AllowDrop="True" Drop="Window_Drop" MouseDown="albumArt_MouseDown" />
+            
+            <StackPanel Orientation="Horizontal" Height="26" Margin="0,60,0,0" HorizontalAlignment="Center">
+                <Button Width="20" Height="20" Margin="3" Template="{StaticResource PrevBtn}" Tag="Previous" Click="PlayerCommandButton_Click"/>
+                <Button x:Name="PlayPauseBtn" Width="20" Height="20" Margin="3" Template="{StaticResource PlayBtn}" Tag="Play" Click="PlayerCommandButton_Click"/>
+                <Button Width="20" Height="20" Margin="3" Template="{StaticResource NextBtn}" Tag="Next" Click="PlayerCommandButton_Click"/>
+            </StackPanel>
+
+            
+            <Slider x:Name="VolumeSlider" IsTabStop="False" Focusable="False" Value="1" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Style="{StaticResource SliderStyle}" Height="5" VerticalAlignment="Top" Margin="0" ValueChanged="VolumeSlider_ValueChanged"/>
+            <Slider x:Name="SeekSlider"   IsTabStop="False" Focusable="False" LargeChange="2000" VerticalAlignment="Bottom" Style="{StaticResource SliderStyle}" ValueChanged="SeekSlider_ValueChanged" />
+
+            
+                <!-- Grid that hold Close and Minimize buttons, pop-up when righ clicked. -->
+            <Grid x:Name="contextGrid" VerticalAlignment="Top" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal">
+                    <Button Tag="minimize" Width="20" Height="20" Margin="0,0,2,0" Template="{StaticResource MinimizeBtn}" Click="CloseMinimizeBtn_click"/>
+                    <Button Tag="close" Width="20" Height="20" Margin="0,0,0,0" Template="{StaticResource CloseBtn}"  Click="CloseMinimizeBtn_click"/>
+                </StackPanel>
+                    
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="ContextGridTT" Y="-25" />
+                </Grid.RenderTransform>
+            </Grid>
+
+            <Button Template="{StaticResource MenuBtn}" Height="20" Width="10" VerticalAlignment="Center" HorizontalAlignment="Right" Click="SliderButton_Click"/>
+        </Grid>
+
+        
+        <!-- Grid represent second menu, slide into view when Slider button is pressed. -->
+        <Grid Background="#4CFFFFFF">
+            <Button Template="{StaticResource MenuBtn}" Width="10" Height="20" VerticalAlignment="Center" HorizontalAlignment="Left" Click="SliderButton_Click"/>
+                
+            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" Height="20" Margin="0,0,0,10">
+                <Button Tag="Add"      Width="20" Height="20" Margin="0,0,15,0" Template="{DynamicResource AddBtn }" AllowDrop="True" Drop="AddButton_Drop" Click="Button_Click"/>
+                <Button Tag="NewFiles" Width="20" Height="20" Margin="0,0,0,0"  Template="{StaticResource OpenBtn}"  Click="Button_Click"/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,7">
+                <RadioButton x:Name="repeatOnceRb" GroupName="RepeatModeRadioBtn" Margin="3" Tag="RepeatOnce" Template="{StaticResource RepeatOnceBtn}" Checked="RepeatModeRadioButton_Checked" />
+                <RadioButton x:Name="repeatAllRb"  GroupName="RepeatModeRadioBtn" Margin="3" Tag="RepeatAll"  Template="{StaticResource RepeatAllBtn}"  Checked="RepeatModeRadioButton_Checked" IsChecked="True" />
+                <RadioButton x:Name="shuffleRb"    GroupName="RepeatModeRadioBtn" Margin="3" Tag="Shuffle"    Template="{StaticResource ShuffleBtn}"    Checked="RepeatModeRadioButton_Checked" />
+            </StackPanel>
+
+            <Grid.RenderTransform>
+                <TranslateTransform X="100" x:Name="SecondGridTT" />
+            </Grid.RenderTransform>
+        </Grid>
+
+        
+        <!-- [Hidden] Slider is used to interpolate Value for ISound.Volume -->
+        <Slider x:Name="HiddenSlider" Visibility="Hidden" Minimum="0" Maximum="1"  ValueChanged="HiddenSlider_ValueChanged" />
+
+        <Grid.RenderTransform>
+            <TranslateTransform X="0" x:Name="MasterGridTT" />
+        </Grid.RenderTransform>
+    </Grid>
+
+
+    <!-- TaskBarInfo for this window -->
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="TaskBarInfo">
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo Description="Previous Track" ImageSource="Icons\previous.png" Click="ThumbButtonInfo_Click" />
+                <ThumbButtonInfo Description="Play"           ImageSource="Icons\play.png"     Click="ThumbButtonInfo_Click" />
+                <ThumbButtonInfo Description="Pause"          ImageSource="Icons\pause.png"    Click="ThumbButtonInfo_Click" />
+                <ThumbButtonInfo Description="Next Track"     ImageSource="Icons\next.png"     Click="ThumbButtonInfo_Click" />
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
+    
+</Window>

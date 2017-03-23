@@ -1,0 +1,7 @@
+digraph "Graphical Class Hierarchy"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="Mp3Player.PlayerEvents",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_mp3_player_1_1_player_events.html",tooltip="Class provide set of events for ISound instance properties, and a timer tick event Aniket Satarkar : ..."];
+}
